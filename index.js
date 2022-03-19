@@ -27,13 +27,14 @@ type Employee {
     designation: String
     department: String @deprecated (reason : "will be removed in a future release"),
     nearestCity: String
+    projects:[Project]
 }
 type Project {
     id: ID!
     projectName: String
     startDate: String
     client: String   
-    employees:[Employee]  
+    employees:[Int]  
 }
 `;
 
@@ -55,9 +56,19 @@ const resolvers ={
         },
         findprojectById:(parent,{id},{dataSources},info)=>{
             return dataSources.projectService.findprojectById(id);
-        }
+        },
+     
 
     },
+    Employee:{  //to whom this resolvers
+        async projects(employee,args,{dataSources},info){
+         let projects = await dataSources.projectService.getprojects();
+         let workingProjects = projects.filter((project)=>{
+             return project.employees.includes(employee.id)
+         });
+         return workingProjects;
+         },// employee whta help to resolver 
+     },
 };
 
 
